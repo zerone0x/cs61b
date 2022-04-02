@@ -1,111 +1,150 @@
-public class ArrayDeque<T>{
+
+public class ArrayDeque<T> {
+    // placeholderType allows us to not immediately define type as int or str.
     private int size;
-    private int nextFirst;
-    private int nextLast;
-    private T[] items;
-    private final int INITIAL_CAPACITY = 8;
+    private int firstIndex;
+    private int lastIndex;
+    private T[] myArrayDeque;
 
-    public ArrayDeque(){
-        items = (T[]) new Object[INITIAL_CAPACITY];
-        nextFirst = 0;
-        nextLast = 1;
-        size = 0;
-    }
-    public boolean isEmpty(){
-        return (size == 0 ? true : false);
+    private static final int START_SIZE = 8;
+
+    public ArrayDeque() { // constructor for ArrayDeque
+        myArrayDeque = (T[]) new Object[START_SIZE];
+        firstIndex = 0;
+        lastIndex = 0;
     }
 
-    public int minusOne(int index){
-        return Math.floorMod(index - 1, items.length);
-    }
-
-    public int plusOne(int index){
-        return Math.floorMod(index + 1, items.length);
-    }
-
-    public int plusOne(int index, int length){
-        return Math.floorMod(index + 1, length);
-    }
-
-    private void expand(){
-        resizeHelper(items.length * 2);
-
-    }
-    private void reduce(){
-        resizeHelper(items.length / 2);
-    }
-    private void resize(){
-        if(size == items.length){
-            expand();
+    public void addFirst(T x) {
+        if (size == 0) {
+            firstIndex = 0;
+            lastIndex = 0;
+            myArrayDeque[0] = x;
+            size++;
+            return;
         }
-        if(size < items.length / 4 && items.length > 8){
-            reduce();
+        if (size == myArrayDeque.length) {
+            resizeUp(); // resize my array here
         }
-    }
-    private void resizeHelper(int capacity){
-        T[] temp = items;
-        int begin = plusOne(nextFirst);
-        int end = minusOne(nextLast);
-        items = (T[]) new Object[capacity];
-        nextFirst = 0;
-        nextLast = 1;
-        for (int i = begin; i != end; i = plusOne(i, temp.length)){
-            items[nextLast] = temp[i];
-            nextLast = plusOne(nextLast);
+        if (firstIndex == 0) {
+            firstIndex = myArrayDeque.length - 1;
+        } else {
+            firstIndex--;
         }
-        items[nextLast] = temp[end];
-        nextLast = plusOne(nextLast);
-    }
-    public T getFirst(){
-        return items[plusOne(nextFirst)];
-    }
-    public void addFirst(T item){
-        items[nextFirst] = item;
-        nextFirst = minusOne(nextFirst);
+        myArrayDeque[firstIndex] = x;
         size++;
     }
 
-    public void addLast(T item) {
-        items[nextLast] = item;
-        nextLast = plusOne(nextLast);
+    public void addLast(T x) {
+        if (size == 0) {
+            firstIndex = 0;
+            lastIndex = 0;
+            myArrayDeque[0] = x;
+            size++;
+            return;
+        }
+        if (size == myArrayDeque.length) {
+            resizeUp(); // resize my array here
+        }
+        if (lastIndex == myArrayDeque.length - 1) {
+            lastIndex = 0;
+        } else {
+            lastIndex++;
+        }
+        myArrayDeque[lastIndex] = x;
         size++;
     }
-    
-    public T getLast(){
-        return items[minusOne(nextLast)];
-    }
-    public T removeFirst(){
-        resize();
-        T x = getFirst();
-        nextFirst = plusOne(nextFirst);
-        items[nextFirst] = null;
-        size--;
-        return x;
-    }
-    public T removeLast(){
-        resize();
-        T x = getLast();
-        nextLast = minusOne(nextLast);
-        items[nextLast] = null;
-        size -= 1;
-        return x;
+
+    public T get(int index) {
+        return myArrayDeque[(firstIndex + index) % myArrayDeque.length];
     }
 
-    public void printDeque(){
-        for(int x = plusOne(nextFirst); x != nextLast; x = plusOne(x)){
-            System.out.print(items[x]);
-            System.out.print(" ");
-        }
-        System.out.println();
+    public boolean isEmpty() {
+        return size == 0;
     }
-    public T get(int x){
-        if(x < 0 || x >= size){
-            return null;
-        }
-        x = Math.floorMod(plusOne(nextFirst) + x, items.length);
-        return items[x];
-    }
+
     public int size() {
+        if (size <= 0) {
+            return 0;
+        }
         return size;
     }
+
+    public void printDeque() {
+        for (int i = 0; i < myArrayDeque.length; i++) {
+            System.out.print(myArrayDeque[i] + " ");
+        }
+    }
+
+    public T removeFirst() {
+        if (size == 0) {
+            return null;
+        }
+        T removedNode = myArrayDeque[firstIndex];
+        myArrayDeque[firstIndex] = null;
+        if (firstIndex == myArrayDeque.length - 1) {
+            firstIndex = 0;
+        } else {
+            firstIndex++;
+        }
+        size--;
+        if (size == 0) {
+            firstIndex = 0;
+            lastIndex = 0;
+        }
+        if (size < myArrayDeque.length / 4) {
+            resizeDown();
+        }
+        return removedNode;
+    }
+
+    public T removeLast() {
+        if (size == 0) {
+            return null;
+        }
+        T removedNode = myArrayDeque[lastIndex];
+        myArrayDeque[lastIndex] = null;
+        if (lastIndex == 0) {
+            lastIndex = myArrayDeque.length - 1;
+        } else {
+            lastIndex--;
+        }
+        size--;
+        if (size == 0) {
+            firstIndex = 0;
+            lastIndex = 0;
+        }
+        if (size < myArrayDeque.length / 4) {
+            resizeDown();
+        }
+        return removedNode;
+    }
+
+    private void resizeUp() {
+        T[] resizedArray = (T[]) new Object[myArrayDeque.length * 2];
+        // copy array into new array
+        int sizeOfFirstCopy = myArrayDeque.length - firstIndex;
+        System.arraycopy(myArrayDeque, firstIndex, resizedArray, 0, sizeOfFirstCopy);
+        System.arraycopy(myArrayDeque, 0, resizedArray, sizeOfFirstCopy, size - sizeOfFirstCopy);
+        myArrayDeque = resizedArray;
+        firstIndex = 0;
+        lastIndex = size - 1;
+    }
+
+    private void resizeDown() {
+        T[] resizedArray = (T[]) new Object[myArrayDeque.length / 2];
+//        int sizeOfFirstCopy = myArrayDeque.length - firstIndex;
+        if (lastIndex < firstIndex) {
+            int sizeOfFirstCopy = myArrayDeque.length - firstIndex;
+            System.arraycopy(myArrayDeque, firstIndex, resizedArray, 0, sizeOfFirstCopy);
+            System.arraycopy(myArrayDeque, 0, resizedArray, sizeOfFirstCopy,
+                    size - sizeOfFirstCopy);
+
+        } else {
+            System.arraycopy(myArrayDeque, firstIndex, resizedArray, 0, size);
+        }
+        myArrayDeque = resizedArray;
+        firstIndex = 0;
+        lastIndex = size - 1;
+    }
+
 }
