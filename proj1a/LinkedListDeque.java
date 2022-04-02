@@ -1,120 +1,115 @@
-public class LinkedListDeque<T> {
-    // placeholderType allows us to not immediately define type as int or str.
-    // the first item (if it exists) is at sentinel.next
-    private TypeNode sentinel; // variable
-    private TypeNode lastSentinel; // last sentinel
-    private int size;
-
-    private class TypeNode {
-        private T item;
-        private TypeNode next;
-        private TypeNode prev;
-
-        public TypeNode(T i, TypeNode n, TypeNode p) { //constructor for typenode
-            item = i;
-            next = n;
+public class LinkedListDeque <T> {
+    private class TNode {
+        public T item;
+        public TNode prev;
+        public TNode next;
+        public TNode(T x, TNode p, TNode n) {
+            item = x;
             prev = p;
+            next = n;
         }
     }
 
-    public LinkedListDeque() { // constructor for deque
-        sentinel = new TypeNode(null, null, null);
-        lastSentinel = new TypeNode(null, null, sentinel);
-        sentinel.next = lastSentinel;
+    private TNode sentinel;
+    private int size;
 
+    public LinkedListDeque () {
+        sentinel = new TNode((T)"null", null, null);
+        sentinel.next = sentinel;
+        sentinel.prev = sentinel;
         size = 0;
     }
 
-    public T getRecursive(int index) {
-        TypeNode currentNode = sentinel.next;
-        return getRecursiveHelper(currentNode, index);
+    public LinkedListDeque(T item) {
+        sentinel = new TNode((T)"null", null, null);
+        sentinel.next = new TNode(item, sentinel, sentinel);
+        sentinel.prev = sentinel.next;
+        size = 1;
     }
-
-    private T getRecursiveHelper(TypeNode currentNode, int currentIndex) {
-        if (currentIndex < 0 || currentIndex > size || currentNode == null) {
-            return null;
-        } else if (currentIndex == 0) {
-            return currentNode.item;
-        }
-        return getRecursiveHelper(currentNode.next, currentIndex - 1);
-    }
-
-    public void addFirst(T x) {
-        // adds x to the front of the list
-        TypeNode newNode = new TypeNode(x, sentinel.next, sentinel);
-        sentinel.next = newNode;
-        newNode.next.prev = sentinel.next;
-        size += 1;
-    }
-
-    public void addLast(T x) {
-        // add an item to the end of a list
-        size += 1;
-        TypeNode newNode = new TypeNode(x, lastSentinel, lastSentinel.prev);
-        lastSentinel.prev = newNode;
-        newNode.prev.next = newNode;
-    }
-
-    public T removeFirst() {
-        if (size == 0) {
-            return null;
-        }
-        size--;
-        TypeNode removedNode = sentinel.next;
-        removedNode.next.prev = sentinel;
-        sentinel.next = removedNode.next;
-        return removedNode.item;
-    }
-
-    public T removeLast() {
-        if (size == 0) {
-            return null;
-        }
-        size--;
-        TypeNode removedNode = lastSentinel.prev;
-        lastSentinel.prev = removedNode.prev;
-        removedNode.prev.next = lastSentinel;
-        return removedNode.item;
-    }
-
-    public T get(int index) {
-        TypeNode currentNode = sentinel.next;
-        if (index >= size) {
-            return null;
-        }
-        while (index > 0) {
-            currentNode = currentNode.next;
-            index--;
-        }
-        return currentNode.item;
-    }
-
-//    for getRecursive, make helper method that uses the nested class
-
 
     public int size() {
-        if (size <= 0) {
-            return 0;
-        }
         return size;
     }
 
+    public void addFirst(T item) {
+        sentinel.next = new TNode(item, sentinel, sentinel.next);
+        sentinel.next.next.prev = sentinel.next;
+        size += 1;
+    }
+
+    public void addLast(T item) {
+        sentinel.prev = new TNode(item, sentinel.prev, sentinel);
+        sentinel.prev.prev.next = sentinel.prev;
+        size += 1;
+    }
+
     public boolean isEmpty() {
-        // returns true if deque is empty, false otherwise
-        return size == 0;
+        if (0 == size) {
+            return true;
+        }
+        return false;
     }
 
     public void printDeque() {
-//      start from sentinel print the item by going through the list
-        TypeNode currentNode = sentinel.next;
-        if (currentNode != null) {
-            return;
-        }
-        while (currentNode != lastSentinel) {
-            System.out.print(currentNode.item + " ");
-            currentNode = currentNode.next;
-
+        TNode ptr = sentinel;
+        while (ptr.next != sentinel) {
+            ptr = ptr.next;
+            System.out.print(ptr.item);
+            System.out.print(" ");
         }
         System.out.println();
+
     }
+
+    public T removeFirst() {
+        if (0 == size) {
+            return null;
+        }
+        size -= 1;
+        T res = sentinel.next.item;
+        sentinel.next = sentinel.next.next;
+        sentinel.next.prev = sentinel;
+        return res;
+    }
+
+    public T removeLast() {
+        if (0 == size) {
+            return null;
+        }
+        size -= 1;
+        T res = sentinel.prev.item;
+        sentinel.prev.prev.next = sentinel;
+        sentinel.prev = sentinel.prev.prev;
+        return res;
+    }
+
+    public T get(int index) {
+        int count = 0;
+        TNode ptr = sentinel;
+        while (ptr.next != sentinel) {
+            ptr = ptr.next;
+            if (count == index) {
+                return ptr.item;
+            }
+            count++;
+        }
+        return null;
+    }
+
+    public T getRecursiveHelper(int index, int count, TNode ptr) {
+        if (index == count) {
+            return ptr.item;
+        }
+        return getRecursiveHelper(index, count+1, ptr.next);
+    }
+
+    public T getRecursive(int index) {
+        if (index >= size || index < 0) {
+            return null;
+        }
+        int count = 0;
+        TNode ptr = sentinel.next;
+        return getRecursiveHelper(index, count, ptr);
+    }
+
 }
