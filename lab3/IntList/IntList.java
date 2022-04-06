@@ -112,6 +112,19 @@ public class IntList {
         }
         return new IntList(A.first, catenate(A.rest, B));
     }
+    public static IntList reverse(IntList A){
+        IntList p = A;
+        IntList prev = null;
+        while (p != null){
+            IntList nxt = p.rest;
+            p.rest = prev;
+            prev = p;
+            p = nxt;
+        }
+        return prev;
+
+
+    }
 
 
 
