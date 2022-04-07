@@ -26,6 +26,7 @@ public class ArrayDeque<T> {
             resizeUp(); // resize my array here
         }
         if (firstIndex == 0) {
+            //            不太明白firstIndex的含义，如果是第一个，那似乎毫无意义，如果是动态的，那指的是什么
             firstIndex = myArrayDeque.length - 1;
         } else {
             firstIndex--;
@@ -66,6 +67,7 @@ public class ArrayDeque<T> {
         if (size <= 0) {
             return 0;
         }
+        // 有必要写吗？
         return size;
     }
 

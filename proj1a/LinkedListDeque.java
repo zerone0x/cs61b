@@ -43,7 +43,8 @@ public class LinkedListDeque<T> {
         // adds x to the front of the list
         TypeNode newNode = new TypeNode(x, sentinel.next, sentinel);
         sentinel.next = newNode;
-        newNode.next.prev = sentinel.next;
+//        newNode.next.prev = sentinel.next;
+        newNode.next.prev = newNode;
         size += 1;
     }
 
@@ -62,7 +63,9 @@ public class LinkedListDeque<T> {
         size--;
         TypeNode removedNode = sentinel.next;
         removedNode.next.prev = sentinel;
-        sentinel.next = removedNode.next;
+//        sentinel.next = removedNode.next;
+
+        removedNode.prev.next = removedNode.next;
         return removedNode.item;
     }
 
@@ -74,6 +77,7 @@ public class LinkedListDeque<T> {
         TypeNode removedNode = lastSentinel.prev;
         lastSentinel.prev = removedNode.prev;
         removedNode.prev.next = lastSentinel;
+//        上面两句顺序有影响吗
         return removedNode.item;
     }
 
@@ -96,6 +100,7 @@ public class LinkedListDeque<T> {
         if (size <= 0) {
             return 0;
         }
+//        需要写吗
         return size;
     }
 
@@ -110,6 +115,7 @@ public class LinkedListDeque<T> {
         if (currentNode != null) {
             return;
         }
+//        为什么不是null会return 应该相反啊
         while (currentNode != lastSentinel) {
             System.out.print(currentNode.item + " ");
             currentNode = currentNode.next;
